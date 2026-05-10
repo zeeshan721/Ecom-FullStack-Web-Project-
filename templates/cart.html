@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}LUXE – My Cart{% endblock %}
+
+{% block content %}
+
+<div class="cart-page">
+  <h2 class="section-title">My Cart
+    <span style="font-size:18px;color:var(--text-muted);font-family:var(--font-body);letter-spacing:1px;">
+      ({{ cart.item_count }} items)
+    </span>
+  </h2>
+
+  <div class="cart-layout">
+
+    <!-- CART ITEMS -->
+    <div class="cart-items" id="cartItems">
+      {% if cart.items.all %}
+        {% for item in cart.items.all %}
+        <div class="cart-item" id="cartItem{{ item.id }}">
+          <div class="cart-item-img">
+            {% if item.product.image %}
+              <img src="{{ item.product.image.url }}"
+                   style="width:100%;height:100%;object-fit:cover;border-radius:6px;"/>
+            {% else %}
+              🛍
+            {% endif %}
+          </div>
+          <div class="cart-item-info">
+            <p class="cart-item-cat">{{ item.product.get_category_display }}</p>
+            <h4 class="cart-item-name">{{ item.product.name }}</h4>
+            <p class="cart-item-meta">
+              {% if item.size %}Size: {{ item.size }} · {% endif %}
+              {% if item.color %}Color: {{ item.color }}{% endif %}
+            </p>
+            <div class="cart-item-qty">
+              <button class="cart-qty-btn" onclick="updateQty({{ item.id }}, -1)">−</button>
+              <span class="cart-qty-num" id="qty{{ item.id }}">{{ item.quantity }}</span>
+              <button class="cart-qty-btn" onclick="updateQty({{ item.id }}, 1)">+</button>
+            </div>
+          </div>
+          <div class="cart-item-right">
+            <p class="cart-item-price" id="price{{ item.id }}">Rs {{ item.subtotal }}</p>
+            <button class="cart-item-remove" onclick="removeItem({{ item.id }})">Remove ✕</button>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="cart-empty">
+          <p style="font-size:60px;margin-bottom:20px;">🛍</p>
+          <p>Your cart is empty!</p>
+          <a href="{% url 'home' %}" class="btn-hero-filled"
+             style="display:inline-block;margin-top:24px;">
+            Start Shopping
+          </a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- SUMMARY -->
+    {% if cart.items.all %}
+    <div class="cart-summary">
+      <h3>Order Summary</h3>
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span id="summarySubtotal">Rs {{ cart.total }}</span>
+      </div>
+      <div class="summary-row">
+        <span>Delivery</span>
+        <span style="color:#6fcf97;">Free</span>
+      </div>
+      <div class="summary-row">
+        <span>Discount</span>
+        <span id="summaryDiscount" style="color:var(--red);">– Rs 0</span>
+      </div>
+      <div class="summary-row total">
+        <span>Total</span>
+        <span id="summaryTotal">Rs {{ cart.total }}</span>
+      </div>
+      <div class="coupon-row">
+        <input class="coupon-input" id="couponInput" type="text" placeholder="Coupon code"/>
+        <button class="coupon-btn" onclick="applyCoupon()">Apply</button>
+      </div>
+      <a href="{% url 'checkout' %}" class="btn-checkout" style="display:block;text-align:center;">
+        Proceed to Checkout →
+      </a>
+      <button class="btn-continue-shopping"
+              onclick="window.location.href='{% url 'home' %}'">
+        ← Continue Shopping
+      </button>
+      <div class="secure-badges">
+        <span>🔒 Secure</span>
+        <span>✅ Authentic</span>
+        <span>↩ Easy Returns</span>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateQty(itemId, delta) {
+  const qtyEl  = document.getElementById('qty' + itemId);
+  const newQty = Math.max(1, parseInt(qtyEl.textContent) + delta);
+  fetch(`/cart/update/${itemId}/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': '{{ csrf_token }}',
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+    body: `quantity=${newQty}`
+  })
+  .then(res => res.json())
+  .then(data => {
+    qtyEl.textContent = newQty;
+    document.getElementById('price' + itemId).textContent  = 'Rs ' + data.subtotal;
+    document.getElementById('summarySubtotal').textContent = 'Rs ' + data.cart_total;
+    document.getElementById('summaryTotal').textContent    = 'Rs ' + data.cart_total;
+    document.querySelector('.cart-count').textContent      = data.cart_count;
+    showToast('Cart updated!');
+  });
+}
+
+function removeItem(itemId) {
+  fetch(`/cart/remove/${itemId}/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': '{{ csrf_token }}',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+  })
+  .then(res => res.json())
+  .then(data => {
+    const el = document.getElementById('cartItem' + itemId);
+    el.style.opacity    = '0';
+    el.style.transform  = 'translateX(30px)';
+    el.style.transition = 'all 0.3s ease';
+    setTimeout(() => {
+      el.remove();
+      document.querySelector('.cart-count').textContent = data.cart_count;
+      if (parseInt(data.cart_count) === 0) location.reload();
+    }, 300);
+    showToast('Item removed!');
+  });
+}
+
+let discount = 0;
+function applyCoupon() {
+  const code = document.getElementById('couponInput').value.trim().toUpperCase();
+  if (code === 'LUXE10')      { discount = 1000; showToast('Rs 1,000 off! 🎉'); }
+  else if (code === 'SAVE20') { discount = 2000; showToast('Rs 2,000 off! 🎉'); }
+  else if (code === '')       { showToast('⚠ Enter a coupon code'); return; }
+  else                        { showToast('⚠ Invalid coupon code'); return; }
+  document.getElementById('summaryDiscount').textContent = '– Rs ' + discount.toLocaleString();
+  const sub = parseInt(document.getElementById('summarySubtotal').textContent.replace(/[^0-9]/g,''));
+  document.getElementById('summaryTotal').textContent = 'Rs ' + Math.max(0, sub - discount).toLocaleString();
+}
+</script>
+{% endblock %}

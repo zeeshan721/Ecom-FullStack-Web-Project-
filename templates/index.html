@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}LUXE – Fashion, Shoes & Cosmetics{% endblock %}
+
+{% block content %}
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <p class="hero-tag animate-fade-up" style="animation-delay:0.2s">New Collection 2025</p>
+      <h1 class="hero-title animate-fade-up" style="animation-delay:0.4s">
+        Dress the <em>World</em><br/>Your Way
+      </h1>
+      <p class="hero-sub animate-fade-up" style="animation-delay:0.6s">
+        Premium Clothing · Designer Shoes · Luxury Cosmetics
+      </p>
+      <div class="hero-btns animate-fade-up" style="animation-delay:0.8s">
+        <a href="{% url 'clothing' %}" class="btn-hero-filled">Shop Now</a>
+        <a href="#" class="btn-hero-ghost">View Lookbook</a>
+      </div>
+    </div>
+    <div class="hero-scroll-hint">scroll ↓</div>
+  </section>
+
+  <!-- ===== CATEGORIES ===== -->
+  <section class="categories">
+    <h2 class="section-title">Shop by Category</h2>
+    <div class="cat-grid">
+      <div class="cat-card" style="animation-delay:0.1s">
+        <div class="cat-img cat-clothing"></div>
+        <div class="cat-info">
+          <h3>Clothing</h3>
+          <p>300+ Styles</p>
+          <a href="{% url 'clothing' %}">Explore →</a>
+        </div>
+      </div>
+      <div class="cat-card" style="animation-delay:0.3s">
+        <div class="cat-img cat-shoes"></div>
+        <div class="cat-info">
+          <h3>Shoes</h3>
+          <p>150+ Designs</p>
+          <a href="{% url 'shoes' %}">Explore →</a>
+        </div>
+      </div>
+      <div class="cat-card" style="animation-delay:0.5s">
+        <div class="cat-img cat-cosmetics"></div>
+        <div class="cat-info">
+          <h3>Cosmetics</h3>
+          <p>200+ Products</p>
+          <a href="{% url 'cosmetics' %}">Explore →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TRENDING PRODUCTS ===== -->
+  <section class="products">
+    <div class="products-header">
+      <h2 class="section-title">Trending Now</h2>
+      <a href="#" class="see-all">See All →</a>
+    </div>
+    <div class="product-grid">
+
+      {% comment %}
+      =====================================================
+      DJANGO LOOP — jab DB ready ho yeh uncomment karna:
+      {% for product in products %}
+      <div class="product-card">
+        <div class="product-img" style="background-image:url('{{ product.image.url }}'); background-size:cover; background-position:center;">
+          {% if product.is_new %}<span class="badge">New</span>{% endif %}
+          {% if product.is_sale %}<span class="badge sale">Sale</span>{% endif %}
+          <button class="wishlist">♡</button>
+        </div>
+        <div class="product-info">
+          <p class="product-cat">{{ product.category }}</p>
+          <h4>{{ product.name }}</h4>
+          <div class="product-price">
+            <span class="price">Rs {{ product.price }}</span>
+            {% if product.old_price %}<span class="old-price">Rs {{ product.old_price }}</span>{% endif %}
+            <button class="add-cart" onclick="addToCart(this)">+ Add</button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      =====================================================
+      {% endcomment %}
+
+      <!-- Static demo cards — replace with loop above when DB ready -->
+      <div class="product-card">
+        <div class="product-img p1">
+          <span class="badge">New</span>
+          <button class="wishlist">♡</button>
+        </div>
+        <div class="product-info">
+          <p class="product-cat">Clothing</p>
+          <h4>Silk Evening Drape</h4>
+          <div class="product-price">
+            <span class="price">Rs 4,500</span>
+            <button class="add-cart" onclick="addToCart(this)">+ Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img p2">
+          <span class="badge sale">Sale</span>
+          <button class="wishlist">♡</button>
+        </div>
+        <div class="product-info">
+          <p class="product-cat">Shoes</p>
+          <h4>Onyx Platform Boots</h4>
+          <div class="product-price">
+            <span class="price">Rs 8,200</span>
+            <span class="old-price">Rs 11,000</span>
+            <button class="add-cart" onclick="addToCart(this)">+ Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img p3">
+          <button class="wishlist">♡</button>
+        </div>
+        <div class="product-info">
+          <p class="product-cat">Cosmetics</p>
+          <h4>Velvet Matte Lip Kit</h4>
+          <div class="product-price">
+            <span class="price">Rs 2,100</span>
+            <button class="add-cart" onclick="addToCart(this)">+ Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img p4">
+          <span class="badge">Hot</span>
+          <button class="wishlist">♡</button>
+        </div>
+        <div class="product-info">
+          <p class="product-cat">Shoes</p>
+          <h4>Cream Leather Loafers</h4>
+          <div class="product-price">
+            <span class="price">Rs 6,800</span>
+            <button class="add-cart" onclick="addToCart(this)">+ Add</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== PROMO BANNER ===== -->
+  <section class="promo-banner">
+    <div class="promo-text">
+      <p class="promo-tag">Limited Offer</p>
+      <h2>Up to 40% Off<br/><em>Summer Collection</em></h2>
+      <a href="#" class="btn-hero-filled">Grab the Deal</a>
+    </div>
+  </section>
+
+  <!-- ===== TESTIMONIALS ===== -->
+  <section class="testimonials">
+    <h2 class="section-title">What Our Customers Say</h2>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <p>"Absolutely obsessed with my order. The quality is chef's kiss 🔥"</p>
+        <span>— Areeba K., Lahore</span>
+      </div>
+      <div class="testi-card">
+        <p>"Delivery was so fast and packaging was so premium. 10/10 experience!"</p>
+        <span>— Bilal M., Karachi</span>
+      </div>
+      <div class="testi-card">
+        <p>"The cosmetics section is everything. Found my HG lip shade finally!"</p>
+        <span>— Zara S., Islamabad</span>
+      </div>
+    </div>
+  </section>
+
+{% endblock %}

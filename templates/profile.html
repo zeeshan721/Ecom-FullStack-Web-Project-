@@ -1,0 +1,353 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}LUXE – My Profile{% endblock %}
+
+{% block content %}
+
+<div class="profile-page">
+  <div class="profile-layout">
+
+    <!-- SIDEBAR -->
+    <div class="profile-sidebar">
+      <div class="profile-avatar">
+        <div class="avatar-circle">
+          {{ user.first_name.0|default:"U" }}{{ user.last_name.0|default:"" }}
+        </div>
+        <p class="profile-name">{{ user.get_full_name|default:user.username }}</p>
+        <p class="profile-email">{{ user.email }}</p>
+      </div>
+      <nav class="profile-nav">
+        <div class="profile-nav-item active" onclick="switchTab(this, 'orders')">
+          <span class="nav-icon">📦</span> My Orders
+        </div>
+        <div class="profile-nav-item" onclick="switchTab(this, 'wishlist')">
+          <span class="nav-icon">♥</span> Wishlist
+        </div>
+        <div class="profile-nav-item" onclick="switchTab(this, 'addresses')">
+          <span class="nav-icon">📍</span> Addresses
+        </div>
+        <div class="profile-nav-item" onclick="switchTab(this, 'settings')">
+          <span class="nav-icon">⚙</span> Account Settings
+        </div>
+        <div class="profile-nav-item" onclick="switchTab(this, 'password')">
+          <span class="nav-icon">🔒</span> Change Password
+        </div>
+        <div class="profile-nav-item" style="margin-top:16px; border-top:1px solid var(--border); padding-top:16px;">
+          <a href="{% url 'logout' %}" style="display:flex; align-items:center; gap:12px; color:var(--red);">
+            <span class="nav-icon">🚪</span> Logout
+          </a>
+        </div>
+      </nav>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="profile-content">
+
+      <!-- ===== ORDERS TAB ===== -->
+      <div class="profile-panel active" id="tab-orders">
+        <div class="profile-panel-header">
+          <h2>My Orders</h2>
+        </div>
+
+        {% comment %}
+        Django:
+        {% if orders %}
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Date</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+            <tr>
+              <td>#LX-{{ order.id }}</td>
+              <td>{{ order.created_at|date:"M d, Y" }}</td>
+              <td>{{ order.items.count }} item(s)</td>
+              <td>Rs {{ order.total }}</td>
+              <td><span class="order-status status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+              <td><button class="order-view-btn">View</button></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+          <p style="color:var(--text-muted);">No orders yet.</p>
+        {% endif %}
+        {% endcomment %}
+
+        <div class="profile-card" style="padding:0; overflow:hidden;">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Date</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color:var(--gold);">#LX-20251234</td>
+                <td>May 05, 2025</td>
+                <td>3 items</td>
+                <td>Rs 14,800</td>
+                <td><span class="order-status status-delivered">Delivered</span></td>
+                <td><button class="order-view-btn" onclick="showToast('Order details coming soon!')">View</button></td>
+              </tr>
+              <tr>
+                <td style="color:var(--gold);">#LX-20251198</td>
+                <td>Apr 22, 2025</td>
+                <td>1 item</td>
+                <td>Rs 4,200</td>
+                <td><span class="order-status status-shipped">Shipped</span></td>
+                <td><button class="order-view-btn" onclick="showToast('Order details coming soon!')">View</button></td>
+              </tr>
+              <tr>
+                <td style="color:var(--gold);">#LX-20251056</td>
+                <td>Mar 14, 2025</td>
+                <td>2 items</td>
+                <td>Rs 7,300</td>
+                <td><span class="order-status status-delivered">Delivered</span></td>
+                <td><button class="order-view-btn" onclick="showToast('Order details coming soon!')">View</button></td>
+              </tr>
+              <tr>
+                <td style="color:var(--gold);">#LX-20250988</td>
+                <td>Feb 28, 2025</td>
+                <td>1 item</td>
+                <td>Rs 3,500</td>
+                <td><span class="order-status status-cancelled">Cancelled</span></td>
+                <td><button class="order-view-btn" onclick="showToast('Order details coming soon!')">View</button></td>
+              </tr>
+              <tr>
+                <td style="color:var(--gold);">#LX-20250901</td>
+                <td>Jan 10, 2025</td>
+                <td>4 items</td>
+                <td>Rs 21,600</td>
+                <td><span class="order-status status-delivered">Delivered</span></td>
+                <td><button class="order-view-btn" onclick="showToast('Order details coming soon!')">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== WISHLIST TAB ===== -->
+      <div class="profile-panel" id="tab-wishlist">
+        <div class="profile-panel-header">
+          <h2>My Wishlist</h2>
+        </div>
+        <div class="wishlist-grid">
+
+          <div class="product-card">
+            <div class="product-img p1">
+              <button class="wishlist" onclick="this.closest('.product-card').style.opacity='0'; setTimeout(()=>this.closest('.product-card').remove(),300); showToast('Removed from wishlist')">♥</button>
+              <div class="product-overlay">
+                <a href="{% url 'product_detail' 'silk-evening-drape' %}" class="overlay-btn">Quick View</a>
+              </div>
+            </div>
+            <div class="product-info">
+              <p class="product-cat">Clothing</p>
+              <h4><a href="{% url 'product_detail' 'silk-evening-drape' %}" style="color:inherit;">Silk Evening Drape</a></h4>
+              <div class="star-rating">4.8 ★</div>
+              <div class="product-price">
+                <span class="price">Rs 4,500</span>
+                <button class="add-cart" onclick="addToCart(this)">+ Add</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <div class="product-img p3">
+              <button class="wishlist" onclick="this.closest('.product-card').style.opacity='0'; setTimeout(()=>this.closest('.product-card').remove(),300); showToast('Removed from wishlist')">♥</button>
+              <div class="product-overlay">
+                <a href="{% url 'product_detail' 'velvet-matte-lip-kit' %}" class="overlay-btn">Quick View</a>
+              </div>
+            </div>
+            <div class="product-info">
+              <p class="product-cat">Cosmetics</p>
+              <h4><a href="{% url 'product_detail' 'velvet-matte-lip-kit' %}" style="color:inherit;">Velvet Matte Lip Kit</a></h4>
+              <div class="star-rating">4.8 ★</div>
+              <div class="product-price">
+                <span class="price">Rs 2,100</span>
+                <button class="add-cart" onclick="addToCart(this)">+ Add</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <div class="product-img p2">
+              <button class="wishlist" onclick="this.closest('.product-card').style.opacity='0'; setTimeout(()=>this.closest('.product-card').remove(),300); showToast('Removed from wishlist')">♥</button>
+              <div class="product-overlay">
+                <a href="{% url 'product_detail' 'onyx-platform-boots' %}" class="overlay-btn">Quick View</a>
+              </div>
+            </div>
+            <div class="product-info">
+              <p class="product-cat">Shoes</p>
+              <h4><a href="{% url 'product_detail' 'onyx-platform-boots' %}" style="color:inherit;">Onyx Platform Boots</a></h4>
+              <div class="star-rating">4.9 ★</div>
+              <div class="product-price">
+                <span class="price">Rs 8,200</span>
+                <button class="add-cart" onclick="addToCart(this)">+ Add</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ===== ADDRESSES TAB ===== -->
+      <div class="profile-panel" id="tab-addresses">
+        <div class="profile-panel-header">
+          <h2>My Addresses</h2>
+        </div>
+        <div class="address-grid">
+
+          <div class="address-card default">
+            <span class="default-badge">DEFAULT</span>
+            <h5>Home</h5>
+            <p>
+              Ali Khan<br/>
+              House #12, Model Town Block B<br/>
+              Lahore, Punjab 54000<br/>
+              +92 300 1234567
+            </p>
+            <div class="address-actions">
+              <button class="address-btn" onclick="showToast('Edit address coming soon!')">Edit</button>
+              <button class="address-btn" onclick="showToast('Cannot delete default address')">Delete</button>
+            </div>
+          </div>
+
+          <div class="address-card">
+            <h5>Office</h5>
+            <p>
+              Ali Khan<br/>
+              3rd Floor, Plaza #45, MM Alam Rd<br/>
+              Lahore, Punjab 54600<br/>
+              +92 300 1234567
+            </p>
+            <div class="address-actions">
+              <button class="address-btn" onclick="showToast('Edit address coming soon!')">Edit</button>
+              <button class="address-btn" style="color:var(--red);" onclick="showToast('Address deleted')">Delete</button>
+            </div>
+          </div>
+
+          <div class="add-address-card" onclick="showToast('Add address coming soon!')">
+            <span>＋</span>
+            <span>Add New Address</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ===== SETTINGS TAB ===== -->
+      <div class="profile-panel" id="tab-settings">
+        <div class="profile-panel-header">
+          <h2>Account Settings</h2>
+        </div>
+
+        <form method="post" action="{% url 'profile' %}">
+          {% csrf_token %}
+          <div class="profile-card">
+            <h4>Personal Information</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label>First Name</label>
+                <input type="text" name="first_name" value="{{ user.first_name }}" placeholder="Ali"/>
+              </div>
+              <div class="form-group">
+                <label>Last Name</label>
+                <input type="text" name="last_name" value="{{ user.last_name }}" placeholder="Khan"/>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Username</label>
+              <input type="text" name="username" value="{{ user.username }}" placeholder="alikhan"/>
+            </div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" name="email" value="{{ user.email }}" placeholder="ali@email.com"/>
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="tel" name="phone" placeholder="+92 300 1234567"/>
+            </div>
+          </div>
+
+          <div class="profile-card">
+            <h4>Preferences</h4>
+            <div class="form-check" style="margin-bottom:14px;">
+              <input type="checkbox" id="emailNotif" checked style="accent-color:var(--gold);"/>
+              <label for="emailNotif" style="font-size:14px; color:var(--text-muted);">Email notifications for orders</label>
+            </div>
+            <div class="form-check" style="margin-bottom:14px;">
+              <input type="checkbox" id="smsNotif" checked style="accent-color:var(--gold);"/>
+              <label for="smsNotif" style="font-size:14px; color:var(--text-muted);">SMS updates for delivery</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" id="newsletter" style="accent-color:var(--gold);"/>
+              <label for="newsletter" style="font-size:14px; color:var(--text-muted);">Subscribe to newsletter & deals</label>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-auth" style="max-width:220px;" onclick="showToast('Profile updated! ✓'); return false;">
+            Save Changes
+          </button>
+        </form>
+      </div>
+
+      <!-- ===== PASSWORD TAB ===== -->
+      <div class="profile-panel" id="tab-password">
+        <div class="profile-panel-header">
+          <h2>Change Password</h2>
+        </div>
+
+        <form method="post" action="{% url 'password_change' %}">
+          {% csrf_token %}
+          <div class="profile-card">
+            <h4>Update Password</h4>
+            <div class="form-group">
+              <label>Current Password</label>
+              <input type="password" name="old_password" placeholder="••••••••"/>
+            </div>
+            <div class="form-group">
+              <label>New Password</label>
+              <input type="password" name="new_password1" placeholder="Min 8 characters"/>
+            </div>
+            <div class="form-group">
+              <label>Confirm New Password</label>
+              <input type="password" name="new_password2" placeholder="Repeat new password"/>
+            </div>
+          </div>
+          <button type="submit" class="btn-auth" style="max-width:220px;" onclick="showToast('Password updated! ✓'); return false;">
+            Update Password
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function switchTab(navItem, tabId) {
+  // Nav items
+  document.querySelectorAll('.profile-nav-item').forEach(i => i.classList.remove('active'));
+  navItem.classList.add('active');
+  // Panels
+  document.querySelectorAll('.profile-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tabId).classList.add('active');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,357 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}LUXE – Checkout{% endblock %}
+
+{% block content %}
+
+<div class="checkout-page">
+
+  <h2 class="section-title">Checkout</h2>
+
+  <!-- STEPS -->
+  <div class="checkout-steps">
+
+    <div class="checkout-step done">
+      <div class="step-circle">✓</div>
+      <div class="step-label">Cart</div>
+    </div>
+
+    <div class="checkout-step active">
+      <div class="step-circle">2</div>
+      <div class="step-label">Details</div>
+    </div>
+
+    <div class="checkout-step">
+      <div class="step-circle">3</div>
+      <div class="step-label">Payment</div>
+    </div>
+
+    <div class="checkout-step">
+      <div class="step-circle">4</div>
+      <div class="step-label">Confirm</div>
+    </div>
+
+  </div>
+
+  <div class="checkout-layout">
+
+    <!-- LEFT SIDE -->
+    <div class="checkout-forms">
+
+      <!-- CONTACT -->
+      <div class="checkout-section">
+
+        <h3>Contact Information</h3>
+
+        <div class="form-row">
+
+          <div class="form-group">
+            <label>First Name</label>
+
+            <input type="text"
+                   name="first_name"
+                   placeholder="Ali"
+                   value="{% if user.is_authenticated %}{{ user.first_name }}{% endif %}">
+          </div>
+
+          <div class="form-group">
+            <label>Last Name</label>
+
+            <input type="text"
+                   name="last_name"
+                   placeholder="Khan"
+                   value="{% if user.is_authenticated %}{{ user.last_name }}{% endif %}">
+          </div>
+
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+
+          <input type="email"
+                 name="email"
+                 placeholder="ali@email.com"
+                 value="{% if user.is_authenticated %}{{ user.email }}{% endif %}">
+        </div>
+
+        <div class="form-group">
+          <label>Phone Number</label>
+
+          <input type="tel"
+                 name="phone"
+                 placeholder="+92 300 1234567">
+        </div>
+
+      </div>
+
+      <!-- ADDRESS -->
+      <div class="checkout-section">
+
+        <h3>Shipping Address</h3>
+
+        <div class="form-group">
+          <label>Full Address</label>
+
+          <input type="text"
+                 name="address"
+                 placeholder="House #, Street, Area">
+        </div>
+
+        <div class="form-row">
+
+          <div class="form-group">
+            <label>City</label>
+
+            <input type="text"
+                   name="city"
+                   placeholder="Lahore">
+          </div>
+
+          <div class="form-group">
+            <label>Postal Code</label>
+
+            <input type="text"
+                   name="postal"
+                   placeholder="54000">
+          </div>
+
+        </div>
+
+        <div class="form-group">
+
+          <label>Province</label>
+
+          <select class="sort-select"
+                  name="province"
+                  style="width:100%;padding:13px 16px;">
+
+            <option value="">Select Province</option>
+            <option>Punjab</option>
+            <option>Sindh</option>
+            <option>KPK</option>
+            <option>Balochistan</option>
+            <option>Islamabad (ICT)</option>
+            <option>AJK</option>
+            <option>Gilgit-Baltistan</option>
+
+          </select>
+
+        </div>
+
+        <div class="form-group">
+
+          <label>Order Notes (Optional)</label>
+
+          <textarea name="notes"
+                    style="width:100%;
+                           background:var(--surface2);
+                           border:1px solid var(--border);
+                           border-radius:var(--radius);
+                           padding:13px 16px;
+                           color:var(--text);
+                           font-family:var(--font-body);
+                           font-size:14px;
+                           outline:none;
+                           resize:vertical;
+                           min-height:80px;"
+                    placeholder="Any special delivery instructions..."></textarea>
+
+        </div>
+
+      </div>
+
+      <!-- PAYMENT -->
+      <div class="checkout-section">
+
+        <h3>Payment Method</h3>
+
+        <div class="payment-options">
+
+          <div class="payment-option selected"
+               onclick="selectPayment(this)">
+
+            <span class="payment-icon">💵</span>
+
+            <input type="radio"
+                   name="payment"
+                   value="cod"
+                   checked>
+
+            <div class="payment-option-info">
+              <h5>Cash on Delivery</h5>
+              <p>Pay when your order arrives at your door</p>
+            </div>
+
+          </div>
+
+          <div class="payment-option"
+               onclick="selectPayment(this)">
+
+            <span class="payment-icon">📱</span>
+
+            <input type="radio"
+                   name="payment"
+                   value="easypaisa">
+
+            <div class="payment-option-info">
+              <h5>EasyPaisa / JazzCash</h5>
+              <p>Pay via mobile wallet</p>
+            </div>
+
+          </div>
+
+          <div class="payment-option"
+               onclick="selectPayment(this)">
+
+            <span class="payment-icon">💳</span>
+
+            <input type="radio"
+                   name="payment"
+                   value="card">
+
+            <div class="payment-option-info">
+              <h5>Credit / Debit Card</h5>
+              <p>Visa, Mastercard</p>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- BUTTON -->
+      <button class="btn-auth"
+              style="font-size:15px;padding:18px;"
+              onclick="placeOrder()">
+
+        Place Order →
+
+      </button>
+
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="checkout-summary">
+
+      <h3>Your Order</h3>
+
+      <!-- DYNAMIC PRODUCTS -->
+      {% for item in cart.items.all %}
+
+      <div class="checkout-item">
+
+        <div class="checkout-item-img">
+
+          {% if item.product.image %}
+
+          <img src="{{ item.product.image.url }}"
+               style="width:100%;
+                      height:100%;
+                      object-fit:cover;
+                      border-radius:6px;">
+
+          {% else %}
+            🛍
+          {% endif %}
+
+        </div>
+
+        <div>
+
+          <p class="checkout-item-name">
+            {{ item.product.name }}
+          </p>
+
+          <p class="checkout-item-meta">
+
+            {% if item.size %}
+              Size: {{ item.size }} ·
+            {% endif %}
+
+            {% if item.color %}
+              Color: {{ item.color }} ·
+            {% endif %}
+
+            Qty: {{ item.quantity }}
+
+          </p>
+
+        </div>
+
+        <span class="checkout-item-price">
+          Rs {{ item.subtotal }}
+        </span>
+
+      </div>
+
+      {% endfor %}
+
+      <!-- TOTALS -->
+      <div class="summary-row" style="margin-top:20px;">
+        <span>Subtotal</span>
+        <span>Rs {{ cart.total }}</span>
+      </div>
+
+      <div class="summary-row">
+        <span>Delivery</span>
+        <span style="color:#6fcf97;">Free</span>
+      </div>
+
+      <div class="summary-row">
+        <span>Discount</span>
+        <span style="color:var(--red);">– Rs 0</span>
+      </div>
+
+      <div class="summary-row total">
+        <span>Total</span>
+        <span>Rs {{ cart.total }}</span>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+
+function selectPayment(option) {
+
+  document.querySelectorAll('.payment-option')
+    .forEach(o => o.classList.remove('selected'));
+
+  option.classList.add('selected');
+
+  option.querySelector('input[type="radio"]').checked = true;
+}
+
+function placeOrder() {
+
+  const phone   = document.querySelector('[name="phone"]').value.trim();
+  const address = document.querySelector('[name="address"]').value.trim();
+  const city    = document.querySelector('[name="city"]').value.trim();
+
+  if (!phone || !address || !city) {
+
+    showToast('⚠ Please fill in all required fields');
+    return;
+  }
+
+  showToast('Processing your order...');
+
+  setTimeout(() => {
+
+    window.location.href = "{% url 'order_success' %}";
+
+  }, 1500);
+}
+
+</script>
+
+{% endblock %}

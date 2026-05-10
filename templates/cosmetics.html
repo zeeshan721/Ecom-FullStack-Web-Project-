@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}LUXE – Cosmetics{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="page-hero-bg cosmetics-hero-bg"></div>
+  <div class="page-hero-content">
+    <p class="hero-tag animate-fade-up" style="animation-delay:0.2s">Glow Different</p>
+    <h1 class="page-hero-title animate-fade-up" style="animation-delay:0.4s">Cosmetics</h1>
+    <p class="hero-sub animate-fade-up" style="animation-delay:0.6s">200+ Products · Skincare · Makeup · Fragrance · Haircare</p>
+  </div>
+</section>
+
+<section class="listing-section">
+
+  <aside class="filter-sidebar" id="filterSidebar">
+    <div class="filter-header">
+      <h3>Filters</h3>
+      <button class="filter-clear" onclick="clearFilters()">Clear All</button>
+    </div>
+    <div class="filter-group">
+      <h4>Category</h4>
+      <label class="filter-check"><input type="checkbox" name="cat" value="makeup" onchange="applyFilter()"/> Makeup</label>
+      <label class="filter-check"><input type="checkbox" name="cat" value="skincare" onchange="applyFilter()"/> Skincare</label>
+      <label class="filter-check"><input type="checkbox" name="cat" value="fragrance" onchange="applyFilter()"/> Fragrance</label>
+      <label class="filter-check"><input type="checkbox" name="cat" value="haircare" onchange="applyFilter()"/> Haircare</label>
+      <label class="filter-check"><input type="checkbox" name="cat" value="nails" onchange="applyFilter()"/> Nail Care</label>
+    </div>
+    <div class="filter-group">
+      <h4>Skin Type</h4>
+      <label class="filter-check"><input type="checkbox" name="skin" value="oily"/> Oily</label>
+      <label class="filter-check"><input type="checkbox" name="skin" value="dry"/> Dry</label>
+      <label class="filter-check"><input type="checkbox" name="skin" value="combo"/> Combination</label>
+      <label class="filter-check"><input type="checkbox" name="skin" value="sensitive"/> Sensitive</label>
+      <label class="filter-check"><input type="checkbox" name="skin" value="all"/> All Skin Types</label>
+    </div>
+    <div class="filter-group">
+      <h4>Price Range</h4>
+      <input type="range" class="price-slider" min="200" max="15000" value="15000" oninput="updatePrice(this)"/>
+      <div class="price-labels">
+        <span>Rs 200</span>
+        <span id="cosmeticsPriceVal">Rs 15,000</span>
+      </div>
+    </div>
+    <div class="filter-group">
+      <h4>Min Rating</h4>
+      <label class="filter-check"><input type="radio" name="rating" value="4"/> ★★★★☆ & above</label>
+      <label class="filter-check"><input type="radio" name="rating" value="3"/> ★★★☆☆ & above</label>
+      <label class="filter-check"><input type="radio" name="rating" value="0" checked/> All</label>
+    </div>
+  </aside>
+
+  <div class="listing-main">
+    <div class="listing-topbar">
+      <p class="listing-count">Showing <span id="cosmeticsCount">{{ products.count }}</span> products</p>
+      <div class="listing-controls">
+        <button class="mobile-filter-btn" onclick="toggleFilterSidebar()">⚙ Filters</button>
+        <select class="sort-select" onchange="sortProducts()">
+          <option value="newest">Newest First</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="popular">Most Popular</option>
+        </select>
+        <div class="view-toggle">
+          <button onclick="setView('grid', this)" class="view-btn active">▦</button>
+          <button onclick="setView('list', this)" class="view-btn">☰</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-grid listing-grid" id="cosmeticsGrid">
+      {% for product in products %}
+      <div class="product-card" data-price="{{ product.price }}" data-cat="{{ product.sub_category|lower }}">
+        <a href="{% url 'product_detail' product.slug %}">
+          <div class="product-img" style="{% if product.image %}background-image:url('{{ product.image.url }}');background-size:cover;background-position:center;{% else %}background:linear-gradient(135deg,#1a0d1a,#2e0d2e);{% endif %}">
+            {% if product.is_new %}<span class="badge">New</span>{% endif %}
+            {% if product.is_sale %}<span class="badge sale">Sale</span>{% endif %}
+            <button class="wishlist" onclick="event.preventDefault(); toggleWishlistBtn(this, {{ product.id }})">♡</button>
+            <div class="product-overlay">
+              <button class="overlay-btn" onclick="event.preventDefault(); quickView({{ product.id }})">Quick View</button>
+            </div>
+          </div>
+        </a>
+        <div class="product-info">
+          <p class="product-cat">{{ product.sub_category }}</p>
+          <h4><a href="{% url 'product_detail' product.slug %}" style="color:inherit;">{{ product.name }}</a></h4>
+          <div class="star-rating">{{ product.rating }} ★</div>
+          <div class="product-price">
+            <span class="price">Rs {{ product.price }}</span>
+            {% if product.old_price %}<span class="old-price">Rs {{ product.old_price }}</span>{% endif %}
+            <button class="add-cart" onclick="addToCartAjax({{ product.id }}, this)">+ Add</button>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div style="grid-column:1/-1; text-align:center; padding:80px 0;">
+        <p style="font-size:60px;">💄</p>
+        <p style="color:var(--text-muted); font-size:16px; margin-top:16px;">No cosmetics products yet.</p>
+        <p style="color:var(--text-muted); font-size:13px;">Add from admin panel.</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="pagination">
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn">Next →</button>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/listing.js' %}"></script>
+{% endblock %}

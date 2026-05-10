@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}LUXE – Order Placed!{% endblock %}
+
+{% block content %}
+
+<div class="success-page">
+  <div class="success-box">
+
+    <div class="success-icon">✓</div>
+
+    <h1>Order Placed!</h1>
+
+    <p>
+      Thank you for shopping with <strong style="color:var(--gold);">LUXE</strong>!
+      Your order has been received and is being processed.
+      You will receive a confirmation SMS and email shortly.
+    </p>
+
+    <!-- ORDER INFO -->
+    <div class="order-number">
+      <p>Your Order Number</p>
+      <h3>#LX-{{ order.id }}</h3>
+    </div>
+
+    <!-- DETAILS -->
+    <div class="success-details">
+
+      <div class="success-detail-card">
+        <span>📦 Delivery</span>
+        <p>3–5 Business Days</p>
+      </div>
+
+      <div class="success-detail-card">
+        <span>💳 Payment</span>
+        <p>{{ order.payment_method }}</p>
+      </div>
+
+      <div class="success-detail-card">
+        <span>💰 Total</span>
+        <p>Rs {{ order.total }}</p>
+      </div>
+
+    </div>
+
+    <!-- SHIPPING -->
+    <div style="background:var(--surface);
+                border:1px solid var(--border);
+                border-radius:10px;
+                padding:24px;
+                margin-bottom:40px;
+                text-align:left;">
+
+      <p style="font-size:11px;
+                letter-spacing:2px;
+                text-transform:uppercase;
+                color:var(--gold);
+                margin-bottom:16px;">
+        Shipping To
+      </p>
+
+      <p style="font-size:14px;color:var(--cream);margin-bottom:4px;">
+        {{ order.name }}
+      </p>
+
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.7;">
+
+        {{ order.address }}<br/>
+        {{ order.city }}, Pakistan<br/>
+        {{ order.phone }}
+
+      </p>
+
+    </div>
+
+    <!-- ORDER ITEMS (REAL DB DATA) -->
+    <div style="background:var(--surface);
+                border:1px solid var(--border);
+                border-radius:10px;
+                padding:24px;
+                margin-bottom:40px;
+                text-align:left;">
+
+      <p style="font-size:11px;
+                letter-spacing:2px;
+                text-transform:uppercase;
+                color:var(--gold);
+                margin-bottom:20px;">
+        Items Ordered
+      </p>
+
+      {% for item in order.items.all %}
+
+      <div class="checkout-item">
+
+        <div class="checkout-item-img">
+
+          {% if item.product.image %}
+            <img src="{{ item.product.image.url }}"
+                 style="width:100%;
+                        height:100%;
+                        object-fit:cover;
+                        border-radius:4px;"/>
+          {% else %}
+            🛍
+          {% endif %}
+
+        </div>
+
+        <div>
+
+          <p class="checkout-item-name">
+            {{ item.product.name }}
+          </p>
+
+          <p class="checkout-item-meta">
+
+            {% if item.size %}
+              Size: {{ item.size }} ·
+            {% endif %}
+
+            {% if item.color %}
+              Color: {{ item.color }} ·
+            {% endif %}
+
+            Qty: {{ item.quantity }}
+
+          </p>
+
+        </div>
+
+        <span class="checkout-item-price">
+          Rs {{ item.total_price }}
+        </span>
+
+      </div>
+
+      {% endfor %}
+
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="success-btns">
+
+      <a href="{% url 'profile' %}"
+         class="btn-hero-filled">
+
+        Track My Order
+      </a>
+
+      <a href="{% url 'home' %}"
+         class="btn-hero-ghost">
+
+        Continue Shopping
+      </a>
+
+    </div>
+
+    <p style="margin-top:32px;
+              font-size:12px;
+              color:var(--text-muted);">
+
+      Questions? Email us at
+      <a href="mailto:support@luxepk.com"
+         style="color:var(--gold);">
+
+        support@luxepk.com
+      </a>
+
+    </p>
+
+  </div>
+</div>
+
+{% endblock %}

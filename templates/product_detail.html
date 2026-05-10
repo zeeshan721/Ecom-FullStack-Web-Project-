@@ -1,0 +1,375 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}LUXE – {{ product.name|default:"Product Detail" }}{% endblock %}
+
+{% block content %}
+
+<div class="product-detail-page">
+
+  <!-- BREADCRUMB -->
+  <div class="breadcrumb">
+    <a href="{% url 'home' %}">Home</a>
+    <span>›</span>
+    <a href="{% url 'clothing' %}">Clothing</a>
+    <span>›</span>
+    Silk Evening Drape
+  </div>
+
+  <!-- MAIN DETAIL GRID -->
+  <div class="detail-grid">
+
+    <!-- LEFT: IMAGE GALLERY -->
+    <div class="detail-gallery">
+      <div class="gallery-main" id="mainImg">
+        <span class="badge">New</span>
+        <span id="mainEmoji">👗</span>
+      </div>
+      <div class="gallery-thumbs">
+        <div class="gallery-thumb active" onclick="changeImg(this, '👗')">👗</div>
+        <div class="gallery-thumb" onclick="changeImg(this, '🪡')">🪡</div>
+        <div class="gallery-thumb" onclick="changeImg(this, '✨')">✨</div>
+        <div class="gallery-thumb" onclick="changeImg(this, '🎀')">🎀</div>
+      </div>
+      {% comment %}
+      Django image gallery:
+      <div class="gallery-main">
+        <img src="{{ product.main_image.url }}" id="mainImg" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"/>
+      </div>
+      <div class="gallery-thumbs">
+        {% for img in product.images.all %}
+        <img src="{{ img.url }}" class="gallery-thumb" onclick="changeImg('{{ img.url }}')"/>
+        {% endfor %}
+      </div>
+      {% endcomment %}
+    </div>
+
+    <!-- RIGHT: PRODUCT INFO -->
+    <div class="detail-info">
+      <p class="detail-brand">LUXE Clothing</p>
+      <h1 class="detail-title">Silk Evening Drape</h1>
+
+      <div class="detail-rating">
+        <div class="detail-stars">★★★★★</div>
+        <span class="detail-review-count">4.8 (124 reviews)</span>
+      </div>
+
+      <div class="detail-price-row">
+        <span class="detail-price">Rs 4,500</span>
+        <span class="detail-old-price">Rs 6,000</span>
+        <span class="detail-discount">25% OFF</span>
+      </div>
+
+      <p class="detail-desc">
+        Crafted from pure silk, this elegant evening drape features delicate embroidery along the hem.
+        Perfect for formal occasions, dinners, and special events. Available in multiple colors,
+        each piece is individually inspected for quality. Dry clean only.
+      </p>
+
+      <!-- Color -->
+      <div class="detail-option-label">Color <span style="color:var(--text-muted);font-size:11px;letter-spacing:0">Selected: Black</span></div>
+      <div class="detail-colors">
+        <button class="detail-color-btn active" style="background:#1a1a1a;" title="Black" onclick="selectColor(this, 'Black')"></button>
+        <button class="detail-color-btn" style="background:#8b2252;" title="Maroon" onclick="selectColor(this, 'Maroon')"></button>
+        <button class="detail-color-btn" style="background:#c9a84c;" title="Gold" onclick="selectColor(this, 'Gold')"></button>
+        <button class="detail-color-btn" style="background:#2c5f8a;" title="Navy" onclick="selectColor(this, 'Navy')"></button>
+        <button class="detail-color-btn" style="background:#2d5a27;" title="Forest Green" onclick="selectColor(this, 'Forest Green')"></button>
+      </div>
+
+      <!-- Size -->
+      <div class="detail-option-label">
+        Size
+        <a href="#">Size Guide →</a>
+      </div>
+      <div class="detail-sizes">
+        <button class="detail-size-btn sold-out" title="Out of Stock">XS</button>
+        <button class="detail-size-btn" onclick="selectSize(this)">S</button>
+        <button class="detail-size-btn" onclick="selectSize(this)">M</button>
+        <button class="detail-size-btn active" onclick="selectSize(this)">L</button>
+        <button class="detail-size-btn" onclick="selectSize(this)">XL</button>
+        <button class="detail-size-btn sold-out" title="Out of Stock">XXL</button>
+      </div>
+
+      <!-- Quantity + Add to Cart -->
+      <div class="detail-qty-row">
+        <div class="qty-control">
+          <button class="qty-btn" onclick="changeQty(-1)">−</button>
+          <input class="qty-input" type="number" id="qtyInput" value="1" min="1" max="10" readonly/>
+          <button class="qty-btn" onclick="changeQty(1)">+</button>
+        </div>
+        <button class="btn-add-to-cart" onclick="addToCartDetail()">Add to Cart 🛍</button>
+        <button class="btn-wishlist-lg" onclick="toggleWishlistDetail(this)">♡</button>
+      </div>
+
+      <button class="btn-buy-now" onclick="showToast('Redirecting to checkout...')">Buy Now →</button>
+
+      <!-- Delivery Badges -->
+      <div class="detail-badges">
+        <div class="detail-badge">🚚 Free Delivery over Rs 3,000</div>
+        <div class="detail-badge">↩ 7 Day Returns</div>
+        <div class="detail-badge">✅ 100% Authentic</div>
+        <div class="detail-badge">🔒 Secure Payment</div>
+      </div>
+
+      <!-- Accordion -->
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          Product Details
+          <span class="accordion-icon">+</span>
+        </div>
+        <div class="accordion-body">
+          <ul style="padding-left:18px; list-style:disc;">
+            <li>100% Pure Silk fabric</li>
+            <li>Hand-embroidered hem detailing</li>
+            <li>Fully lined inner layer</li>
+            <li>Available in 5 colors</li>
+            <li>Sizes: XS to XXL</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          Shipping & Delivery
+          <span class="accordion-icon">+</span>
+        </div>
+        <div class="accordion-body">
+          Standard delivery: 3–5 business days.<br/>
+          Express delivery: 1–2 business days (extra charges apply).<br/>
+          Free standard delivery on orders above Rs 3,000.<br/>
+          Delivery available across Pakistan.
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          Returns & Exchange
+          <span class="accordion-icon">+</span>
+        </div>
+        <div class="accordion-body">
+          Easy 7-day return policy. Items must be unused, unwashed, and in original packaging.
+          Exchange available for size issues. Cosmetics & innerwear are non-returnable.
+          Contact us at support@luxepk.com to initiate a return.
+        </div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          Care Instructions
+          <span class="accordion-icon">+</span>
+        </div>
+        <div class="accordion-body">
+          Dry clean only. Do not tumble dry. Store in a cool, dry place.
+          Iron on low heat with a cloth barrier. Do not bleach.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- REVIEWS SECTION -->
+<div class="reviews-section">
+  <div class="reviews-header">
+    <h3>Customer Reviews</h3>
+    <button class="btn-outline" style="padding:10px 24px; font-size:12px;" onclick="showToast('Login to write a review!')">Write a Review</button>
+  </div>
+
+  <div class="reviews-summary">
+    <div style="text-align:center; min-width:100px;">
+      <div class="reviews-avg">4.8</div>
+      <div class="reviews-stars">★★★★★</div>
+      <div class="reviews-total">124 reviews</div>
+    </div>
+    <div class="review-bars">
+      <div class="review-bar-row">5 ★ <div class="review-bar-track"><div class="review-bar-fill" style="width:78%"></div></div> 78%</div>
+      <div class="review-bar-row">4 ★ <div class="review-bar-track"><div class="review-bar-fill" style="width:14%"></div></div> 14%</div>
+      <div class="review-bar-row">3 ★ <div class="review-bar-track"><div class="review-bar-fill" style="width:5%"></div></div> 5%</div>
+      <div class="review-bar-row">2 ★ <div class="review-bar-track"><div class="review-bar-fill" style="width:2%"></div></div> 2%</div>
+      <div class="review-bar-row">1 ★ <div class="review-bar-track"><div class="review-bar-fill" style="width:1%"></div></div> 1%</div>
+    </div>
+  </div>
+
+  <!-- Review Cards -->
+  {% comment %}
+  Django loop:
+  {% for review in product.reviews.all %}
+  <div class="review-card">
+    <div class="review-top">
+      <span class="review-name">{{ review.user.get_full_name }}</span>
+      <span class="review-date">{{ review.created_at|date:"M d, Y" }}</span>
+    </div>
+    <div class="review-stars">{{ review.rating_stars }}</div>
+    <p class="review-text">{{ review.comment }}</p>
+  </div>
+  {% endfor %}
+  {% endcomment %}
+
+  <div class="review-card">
+    <div class="review-top">
+      <span class="review-name">Areeba Khan</span>
+      <span class="review-date">Apr 15, 2025</span>
+    </div>
+    <div class="review-stars">★★★★★</div>
+    <p class="review-text">Absolutely stunning! The fabric quality is incredible and the embroidery is so detailed. Got so many compliments at the wedding. Will definitely order again!</p>
+  </div>
+
+  <div class="review-card">
+    <div class="review-top">
+      <span class="review-name">Fatima Malik</span>
+      <span class="review-date">Mar 28, 2025</span>
+    </div>
+    <div class="review-stars">★★★★☆</div>
+    <p class="review-text">Very beautiful drape. Delivery was fast, packaging was premium. Only slight issue was the size ran a little large — recommend sizing down. Overall very happy!</p>
+  </div>
+
+  <div class="review-card">
+    <div class="review-top">
+      <span class="review-name">Zara Siddiqui</span>
+      <span class="review-date">Feb 10, 2025</span>
+    </div>
+    <div class="review-stars">★★★★★</div>
+    <p class="review-text">Bought this for Eid and it was perfect. The maroon color is even more beautiful in person. LUXE never disappoints!</p>
+  </div>
+</div>
+
+<!-- RELATED PRODUCTS -->
+<div class="related-section">
+  <h2 class="section-title">You May Also Like</h2>
+  <div class="product-grid" style="grid-template-columns: repeat(4,1fr);">
+
+    <div class="product-card">
+      <div class="product-img" style="background:linear-gradient(135deg,#1a0d0a,#3d1a10);">
+        <button class="wishlist">♡</button>
+        <div class="product-overlay"><button class="overlay-btn">Quick View</button></div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:70px;animation:float 3s ease-in-out infinite;">👘</div>
+      </div>
+      <div class="product-info">
+        <p class="product-cat">Eastern Wear</p>
+        <h4>Embroidered Lawn Suit</h4>
+        <div class="star-rating">4.6 ★</div>
+        <div class="product-price">
+          <span class="price">Rs 3,200</span>
+          <button class="add-cart" onclick="addToCart(this)">+ Add</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="product-img" style="background:linear-gradient(135deg,#0a0d1a,#101a3d);">
+        <button class="wishlist">♡</button>
+        <div class="product-overlay"><button class="overlay-btn">Quick View</button></div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:70px;animation:float 3s ease-in-out infinite 0.5s;">🧥</div>
+      </div>
+      <div class="product-info">
+        <p class="product-cat">Formal Wear</p>
+        <h4>Classic Blazer Set</h4>
+        <div class="star-rating">4.9 ★</div>
+        <div class="product-price">
+          <span class="price">Rs 6,800</span>
+          <button class="add-cart" onclick="addToCart(this)">+ Add</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="product-img" style="background:linear-gradient(135deg,#1a0a1a,#3d103d);">
+        <button class="wishlist">♡</button>
+        <div class="product-overlay"><button class="overlay-btn">Quick View</button></div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:70px;animation:float 3s ease-in-out infinite 1s;">👗</div>
+      </div>
+      <div class="product-info">
+        <p class="product-cat">Western Wear</p>
+        <h4>Velvet Evening Gown</h4>
+        <div class="star-rating">4.7 ★</div>
+        <div class="product-price">
+          <span class="price">Rs 8,500</span>
+          <button class="add-cart" onclick="addToCart(this)">+ Add</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="product-img" style="background:linear-gradient(135deg,#1a1008,#3d2810);">
+        <button class="wishlist">♡</button>
+        <div class="product-overlay"><button class="overlay-btn">Quick View</button></div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:70px;animation:float 3s ease-in-out infinite 1.5s;">🥻</div>
+      </div>
+      <div class="product-info">
+        <p class="product-cat">Eastern Wear</p>
+        <h4>Chiffon Maxi Saree</h4>
+        <div class="star-rating">4.8 ★</div>
+        <div class="product-price">
+          <span class="price">Rs 5,500</span>
+          <button class="add-cart" onclick="addToCart(this)">+ Add</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Gallery thumb switch
+function changeImg(thumb, emoji) {
+  document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+  thumb.classList.add('active');
+  document.getElementById('mainEmoji').textContent = emoji;
+}
+
+// Size select
+function selectSize(btn) {
+  document.querySelectorAll('.detail-size-btn:not(.sold-out)').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  showToast('Size ' + btn.textContent.trim() + ' selected');
+}
+
+// Color select
+function selectColor(btn, name) {
+  document.querySelectorAll('.detail-color-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelector('.detail-option-label span').textContent = 'Selected: ' + name;
+}
+
+// Qty
+function changeQty(delta) {
+  const input = document.getElementById('qtyInput');
+  const newVal = Math.max(1, Math.min(10, parseInt(input.value) + delta));
+  input.value = newVal;
+}
+
+// Add to cart from detail
+function addToCartDetail() {
+  const qty = parseInt(document.getElementById('qtyInput').value);
+  cartCount += qty;
+  localStorage.setItem('luxe_cart', cartCount);
+  updateCartUI();
+  showToast(qty + ' item(s) added to cart 🛍');
+}
+
+// Wishlist on detail
+function toggleWishlistDetail(btn) {
+  const isActive = btn.textContent === '♥';
+  btn.textContent = isActive ? '♡' : '♥';
+  btn.style.color = isActive ? '' : '#e05a5a';
+  btn.style.borderColor = isActive ? '' : '#e05a5a';
+  showToast(isActive ? 'Removed from wishlist' : 'Added to wishlist ♥');
+}
+
+// Accordion
+function toggleAccordion(header) {
+  const body = header.nextElementSibling;
+  const icon = header.querySelector('.accordion-icon');
+  const isOpen = body.classList.contains('open');
+  document.querySelectorAll('.accordion-body').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.accordion-icon').forEach(i => i.classList.remove('open'));
+  if (!isOpen) {
+    body.classList.add('open');
+    icon.classList.add('open');
+  }
+}
+</script>
+{% endblock %}

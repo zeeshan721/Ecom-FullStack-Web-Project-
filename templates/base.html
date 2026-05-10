@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}LUXE – Fashion, Shoes & Cosmetics{% endblock %}</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+  <!-- Main CSS -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}"/>
+
+  <!-- Extra CSS block (child templates can add their own) -->
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <script>
+function getCsrf() {
+  const cookie = document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='));
+  return cookie ? cookie.trim().split('=')[1] : '';
+}
+
+function showToast(message) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity 0.4s ease';
+    setTimeout(() => toast.remove(), 400);
+  }, 2500);
+}
+
+function addToCartAjax(productId, btn) {
+  fetch(`/cart/add/${productId}/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCsrf(),
+      'X-Requested-With': 'XMLHttpRequest',
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'quantity=1'
+  })
+  .then(res => {
+    if (res.redirected) { window.location.href = '/login/'; return null; }
+    return res.json();
+  })
+  .then(data => {
+    if (!data) return;
+    document.querySelectorAll('.cart-count').forEach(el => el.textContent = data.cart_count);
+    btn.textContent = '✓ Added';
+    btn.style.background = 'var(--gold)';
+    btn.style.color = 'var(--bg)';
+    showToast(data.message);
+    setTimeout(() => {
+      btn.textContent = '+ Add';
+      btn.style.background = '';
+      btn.style.color = '';
+    }, 2000);
+  })
+  .catch(err => showToast('Please login first'));
+}
+
+function quickView(productId) {
+  let modal = document.getElementById('quickViewModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'quickViewModal';
+    modal.innerHTML = `
+      <div class="qv-overlay" onclick="closeQuickView()"></div>
+      <div class="qv-box">
+        <button class="qv-close" onclick="closeQuickView()">✕</button>
+        <div class="qv-content" id="qvContent">
+          <div style="text-align:center;padding:60px;color:var(--text-muted);">Loading...</div>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+  }
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  fetch(`/product/quick-view/${productId}/`, {
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById('qvContent').innerHTML = `
+      <div class="qv-grid">
+        <div class="qv-img">
+          ${data.image
+            ? `<img src="${data.image}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;"/>`
+            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:100px;background:linear-gradient(135deg,#1a1208,#3d2c10);border-radius:8px;">🛍</div>`
+          }
+        </div>
+        <div class="qv-info">
+          <p style="font-size:11px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;">${data.sub_category}</p>
+          <h2 style="font-family:var(--font-display);font-size:32px;font-weight:300;color:var(--cream);margin-bottom:12px;">${data.name}</h2>
+          <div style="color:var(--gold);font-size:16px;margin-bottom:16px;">${data.rating} ★</div>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border);">
+            <span style="font-size:28px;font-weight:500;color:var(--cream);">Rs ${data.price}</span>
+            ${data.old_price ? `<span style="font-size:18px;color:var(--text-muted);text-decoration:line-through;">Rs ${data.old_price}</span>` : ''}
+          </div>
+          <p style="font-size:14px;color:var(--text-muted);line-height:1.8;margin-bottom:24px;">${data.description || 'Premium quality product.'}</p>
+          <div style="display:flex;gap:12px;">
+            <button class="btn-add-to-cart" style="flex:1;" onclick="addToCartAjax(${data.id}, this)">Add to Cart 🛍</button>
+            <a href="/product/${data.slug}/" class="btn-hero-ghost" style="padding:14px 20px;">Full Details</a>
+          </div>
+        </div>
+      </div>`;
+  });
+}
+
+function closeQuickView() {
+  const modal = document.getElementById('quickViewModal');
+  if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
+}
+
+function toggleMenu() {
+  const menu = document.getElementById('mobileMenu');
+  if (menu) menu.classList.toggle('open');
+}
+
+window.addEventListener('scroll', () => {
+  const navbar = document.getElementById('navbar');
+  if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeQuickView();
+});
+</script>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <a href="{% url 'home' %}" class="nav-logo">LUXE</a>
+
+    <ul class="nav-links">
+      <li><a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a></li>
+      <li><a href="{% url 'clothing' %}" class="{% if request.resolver_match.url_name == 'clothing' %}active{% endif %}">Clothing</a></li>
+      <li><a href="{% url 'shoes' %}" class="{% if request.resolver_match.url_name == 'shoes' %}active{% endif %}">Shoes</a></li>
+      <li><a href="{% url 'cosmetics' %}" class="{% if request.resolver_match.url_name == 'cosmetics' %}active{% endif %}">Cosmetics</a></li>
+      <li><a href="{% url 'about' %}" class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}">About</a></li>
+      <li><a href="{% url 'contact' %}" class="{% if request.resolver_match.url_name == 'contact' %}active{% endif %}">Contact</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      {% if user.is_authenticated %}
+        <a href="{% url 'profile' %}" style="font-size:13px; color:var(--gold); letter-spacing:1px;">Hi, {{ user.first_name|default:user.username }}</a>
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn-outline" style="cursor:pointer;">Logout</button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}" class="btn-outline {% if request.resolver_match.url_name == 'login' %}active-nav{% endif %}">Login</a>
+        <a href="{% url 'register' %}" class="btn-filled">Register</a>
+      {% endif %}
+      <a href="{% url 'cart' %}" class="cart-icon">🛍 <span class="cart-count">{{ cart_count|default:"0" }}</span></a>
+    </div>
+
+    <div class="hamburger" onclick="toggleMenu()">&#9776;</div>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="{% url 'home' %}">Home</a>
+    <a href="{% url 'clothing' %}">Clothing</a>
+    <a href="{% url 'shoes' %}">Shoes</a>
+    <a href="{% url 'cosmetics' %}">Cosmetics</a>
+    <a href="{% url 'about' %}">About</a>
+    <a href="{% url 'contact' %}">Contact</a>
+    {% if user.is_authenticated %}
+      <a href="{% url 'logout' %}">Logout</a>
+    {% else %}
+      <a href="{% url 'login' %}">Login</a>
+      <a href="{% url 'register' %}">Register</a>
+    {% endif %}
+  </div>
+
+  <!-- ===== DJANGO MESSAGES (Alerts) ===== -->
+  {% if messages %}
+    <div class="django-messages">
+      {% for message in messages %}
+        <div class="django-alert django-alert-{{ message.tags }}">
+          {{ message }}
+          <span class="alert-close" onclick="this.parentElement.remove()">✕</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main>
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  {% block footer %}
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h3>LUXE</h3>
+        <p>Fashion, Shoes & Cosmetics — all in one place. Pakistan's finest online boutique.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Quick Links</h4>
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'clothing' %}">Clothing</a>
+        <a href="{% url 'shoes' %}">Shoes</a>
+        <a href="{% url 'cosmetics' %}">Cosmetics</a>
+        <a href="{% url 'contact' %}">Contact</a>
+      </div>
+      <div class="footer-links">
+        <h4>Support</h4>
+        <a href="#">FAQs</a>
+        <a href="#">Returns</a>
+        <a href="#">Shipping Policy</a>
+        <a href="#">Privacy Policy</a>
+      </div>
+      <div class="footer-newsletter">
+        <h4>Newsletter</h4>
+        <p>Get exclusive drops in your inbox.</p>
+        <div class="newsletter-form">
+          <input type="email" placeholder="your@email.com"/>
+          <button>→</button>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© {% now "Y" %} LUXE. All rights reserved. Built with ❤️ in Pakistan</p>
+    </div>
+  </footer>
+  {% endblock footer %}
+
+  <!-- ===== SCRIPTS ===== -->
+  <script src="{% static 'js/main.js' %}"></script>
+
+  <!-- Extra JS block -->
+  {% block extra_js %}{% endblock %}
+
+</body>
+</html>

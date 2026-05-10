@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}LUXE – Clothing{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="page-hero-bg clothing-hero-bg"></div>
+  <div class="page-hero-content">
+    <p class="hero-tag animate-fade-up" style="animation-delay:0.2s">New Arrivals 2025</p>
+    <h1 class="page-hero-title animate-fade-up" style="animation-delay:0.4s">Clothing</h1>
+    <p class="hero-sub animate-fade-up" style="animation-delay:0.6s">300+ Premium Styles · Casual · Formal · Eastern · Western</p>
+  </div>
+</section>
+
+<section class="listing-section">
+
+  <aside class="filter-sidebar" id="filterSidebar">
+    <div class="filter-header">
+      <h3>Filters</h3>
+      <button class="filter-clear" onclick="clearFilters()">Clear All</button>
+    </div>
+    <div class="filter-group">
+      <h4>Category</h4>
+      <label class="filter-check"><input type="checkbox" name="cat" value="casual" onchange="applyFilter()"/> Casual Wear</label>
+      <label class="filter-check"><input type="checkbox" name="cat" value="formal" onchange="applyFilter()"/> Formal Wear</label>
+      <label class="filter-check"><input type="checkbox" name="cat" value="eastern" onchange="applyFilter()"/> Eastern Wear</label>
+      <label class="filter-check"><input type="checkbox" name="cat" value="western" onchange="applyFilter()"/> Western Wear</label>
+      <label class="filter-check"><input type="checkbox" name="cat" value="activewear" onchange="applyFilter()"/> Activewear</label>
+    </div>
+    <div class="filter-group">
+      <h4>Size</h4>
+      <div class="size-grid">
+        <button class="size-btn" onclick="toggleSize(this)">XS</button>
+        <button class="size-btn" onclick="toggleSize(this)">S</button>
+        <button class="size-btn" onclick="toggleSize(this)">M</button>
+        <button class="size-btn" onclick="toggleSize(this)">L</button>
+        <button class="size-btn" onclick="toggleSize(this)">XL</button>
+        <button class="size-btn" onclick="toggleSize(this)">XXL</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <h4>Price Range</h4>
+      <input type="range" class="price-slider" min="500" max="20000" value="20000" oninput="updatePrice(this)"/>
+      <div class="price-labels">
+        <span>Rs 500</span>
+        <span id="clothingPriceVal">Rs 20,000</span>
+      </div>
+    </div>
+    <div class="filter-group">
+      <h4>Color</h4>
+      <div class="color-grid">
+        <button class="color-dot" style="background:#1a1a1a;" onclick="toggleColor(this)"></button>
+        <button class="color-dot" style="background:#f5f0e8;" onclick="toggleColor(this)"></button>
+        <button class="color-dot" style="background:#8b4513;" onclick="toggleColor(this)"></button>
+        <button class="color-dot" style="background:#2c5f8a;" onclick="toggleColor(this)"></button>
+        <button class="color-dot" style="background:#8b2252;" onclick="toggleColor(this)"></button>
+        <button class="color-dot" style="background:#2d5a27;" onclick="toggleColor(this)"></button>
+        <button class="color-dot" style="background:#c9a84c;" onclick="toggleColor(this)"></button>
+        <button class="color-dot" style="background:#e8e8e8;" onclick="toggleColor(this)"></button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <h4>Min Rating</h4>
+      <label class="filter-check"><input type="radio" name="rating" value="4"/> ★★★★☆ & above</label>
+      <label class="filter-check"><input type="radio" name="rating" value="3"/> ★★★☆☆ & above</label>
+      <label class="filter-check"><input type="radio" name="rating" value="0" checked/> All</label>
+    </div>
+  </aside>
+
+  <div class="listing-main">
+    <div class="listing-topbar">
+      <p class="listing-count">Showing <span id="clothingCount">{{ products.count }}</span> products</p>
+      <div class="listing-controls">
+        <button class="mobile-filter-btn" onclick="toggleFilterSidebar()">⚙ Filters</button>
+        <select class="sort-select" onchange="sortProducts()">
+          <option value="newest">Newest First</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="popular">Most Popular</option>
+        </select>
+        <div class="view-toggle">
+          <button onclick="setView('grid', this)" class="view-btn active">▦</button>
+          <button onclick="setView('list', this)" class="view-btn">☰</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-grid listing-grid" id="clothingGrid">
+      {% for product in products %}
+      <div class="product-card" data-price="{{ product.price }}" data-cat="{{ product.sub_category|lower }}">
+        <a href="{% url 'product_detail' product.slug %}">
+          <div class="product-img" style="{% if product.image %}background-image:url('{{ product.image.url }}');background-size:cover;background-position:center;{% else %}background:linear-gradient(135deg,#1a1208,#3d2c10);{% endif %}">
+            {% if product.is_new %}<span class="badge">New</span>{% endif %}
+            {% if product.is_sale %}<span class="badge sale">Sale</span>{% endif %}
+            <button class="wishlist" onclick="event.preventDefault(); toggleWishlistBtn(this, {{ product.id }})">♡</button>
+            <div class="product-overlay">
+              <button class="overlay-btn" onclick="event.preventDefault(); quickView({{ product.id }})">Quick View</button>
+            </div>
+          </div>
+        </a>
+        <div class="product-info">
+          <p class="product-cat">{{ product.sub_category }}</p>
+          <h4><a href="{% url 'product_detail' product.slug %}" style="color:inherit;">{{ product.name }}</a></h4>
+          <div class="star-rating">{{ product.rating }} ★</div>
+          <div class="product-price">
+            <span class="price">Rs {{ product.price }}</span>
+            {% if product.old_price %}<span class="old-price">Rs {{ product.old_price }}</span>{% endif %}
+            <button class="add-cart" onclick="addToCartAjax({{ product.id }}, this)">+ Add</button>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div style="grid-column:1/-1; text-align:center; padding:80px 0;">
+        <p style="font-size:60px;">👗</p>
+        <p style="color:var(--text-muted); font-size:16px; margin-top:16px;">No clothing products yet.</p>
+        <p style="color:var(--text-muted); font-size:13px;">Add from admin panel.</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="pagination">
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn">Next →</button>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/listing.js' %}"></script>
+{% endblock %}
