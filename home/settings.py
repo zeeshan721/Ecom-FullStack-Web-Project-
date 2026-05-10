@@ -113,7 +113,9 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
 
-
+CSRF_TRUSTED_ORIGINS = [
+    'https://ecom-fullstack-web-project-production.up.railway.app',
+]
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
