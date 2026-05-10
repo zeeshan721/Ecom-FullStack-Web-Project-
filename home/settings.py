@@ -105,10 +105,12 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
+import os
+
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dncyuire1',
-    'API_KEY': '978571497362468',
-    'API_SECRET': 'Mbd6yj1Wt4SvVQ1NQXOsQGhR9DI',
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
 
 
